@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Cover Music – Ngô Quân Hào</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">
+        <span class="logo-icon">🎵</span>
+        <span>AI Cover Music</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Tính năng</a></li>
+        <li><a href="#studio">Studio</a></li>
+        <li><a href="#how-it-works">Cách dùng</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <button class="btn-primary nav-cta" onclick="scrollToStudio()">
+        Bắt đầu ngay
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <div class="wave wave1"></div>
+      <div class="wave wave2"></div>
+      <div class="wave wave3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">✨ Powered by AI</div>
+      <h1 class="hero-title">
+        Biến giọng hát của bạn thành<br />
+        <span class="gradient-text">bất kỳ giọng ca nào</span>
+      </h1>
+      <p class="hero-desc">
+        Upload nhạc hoặc giọng hát, chọn phong cách AI, nhận bản cover chất
+        lượng cao chỉ trong vài giây. Miễn phí, không cần cài đặt.
+      </p>
+      <div class="hero-actions">
+        <button class="btn-primary btn-large" onclick="scrollToStudio()">
+          🚀 Tạo Cover ngay
+        </button>
+        <button class="btn-ghost btn-large" onclick="playDemo()">
+          ▶ Xem Demo
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <strong>10K+</strong>
+          <span>Cover đã tạo</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <strong>50+</strong>
+          <span>Mô hình giọng</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <strong>99%</strong>
+          <span>Hài lòng</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="audio-visualizer" id="heroVisualizer">
+        <div class="vis-bar" style="--delay:0s"></div>
+        <div class="vis-bar" style="--delay:.1s"></div>
+        <div class="vis-bar" style="--delay:.2s"></div>
+        <div class="vis-bar" style="--delay:.05s"></div>
+        <div class="vis-bar" style="--delay:.15s"></div>
+        <div class="vis-bar" style="--delay:.25s"></div>
+        <div class="vis-bar" style="--delay:.08s"></div>
+        <div class="vis-bar" style="--delay:.18s"></div>
+        <div class="vis-bar" style="--delay:.28s"></div>
+        <div class="vis-bar" style="--delay:.03s"></div>
+        <div class="vis-bar" style="--delay:.13s"></div>
+        <div class="vis-bar" style="--delay:.23s"></div>
+        <div class="vis-bar" style="--delay:.06s"></div>
+        <div class="vis-bar" style="--delay:.16s"></div>
+        <div class="vis-bar" style="--delay:.26s"></div>
+      </div>
+      <div class="hero-card">
+        <div class="hcard-avatar">🎤</div>
+        <div class="hcard-info">
+          <div class="hcard-title">Đang tạo cover…</div>
+          <div class="hcard-sub">Sơn Tùng M-TP Style</div>
+        </div>
+        <div class="hcard-progress">
+          <div class="hcard-bar" id="heroBar"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES ===== -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>Tính năng nổi bật</h2>
+        <p>Mọi thứ bạn cần để tạo bản cover AI hoàn hảo</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎙️</div>
+          <h3>AI Voice Conversion</h3>
+          <p>
+            Chuyển đổi giọng hát sang phong cách bất kỳ ca sĩ bằng công nghệ
+            RVC (Retrieval-based Voice Conversion) tiên tiến.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎼</div>
+          <h3>Tách nhạc nền</h3>
+          <p>
+            Tự động tách vocal khỏi nhạc nền bằng Demucs, giúp bản cover nghe
+            sạch và chuyên nghiệp hơn.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Xử lý nhanh</h3>
+          <p>
+            Hệ thống GPU cloud xử lý trong 30–60 giây thay vì hàng giờ như
+            chạy trên máy cá nhân.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3>Tùy chỉnh cao</h3>
+          <p>
+            Điều chỉnh pitch, tempo, reverb, và nhiều thông số khác để tạo ra
+            đúng âm thanh bạn mong muốn.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📥</div>
+          <h3>Xuất chất lượng cao</h3>
+          <p>
+            Tải xuống file WAV lossless 48kHz hoặc MP3 320kbps, sẵn sàng đăng
+            lên mọi nền tảng.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Riêng tư & An toàn</h3>
+          <p>
+            File âm thanh được xóa tự động sau 1 giờ, không lưu trữ dữ liệu
+            cá nhân của bạn.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STUDIO ===== -->
+  <section class="studio" id="studio">
+    <div class="container">
+      <div class="section-header">
+        <h2>🎛️ AI Cover Studio</h2>
+        <p>Tạo bản cover của bạn chỉ trong 3 bước đơn giản</p>
+      </div>
+
+      <!-- Step indicator -->
+      <div class="steps-indicator">
+        <div class="step active" id="step-indicator-1">
+          <div class="step-num">1</div>
+          <div class="step-label">Upload nhạc</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step-indicator-2">
+          <div class="step-num">2</div>
+          <div class="step-label">Chọn giọng</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step-indicator-3">
+          <div class="step-num">3</div>
+          <div class="step-label">Tạo cover</div>
+        </div>
+      </div>
+
+      <div class="studio-panels">
+        <!-- Panel 1: Upload -->
+        <div class="studio-panel active" id="panel-1">
+          <h3>Bước 1 – Upload file âm thanh</h3>
+
+          <!-- Tabs -->
+          <div class="upload-tabs">
+            <button class="tab-btn active" data-tab="file">📁 Upload file</button>
+            <button class="tab-btn" data-tab="youtube">🔗 YouTube URL</button>
+            <button class="tab-btn" data-tab="record">🎙️ Ghi âm trực tiếp</button>
+          </div>
+
+          <!-- Tab: File upload -->
+          <div class="tab-content active" id="tab-file">
+            <div
+              class="dropzone"
+              id="dropzone"
+              ondragover="handleDragOver(event)"
+              ondragleave="handleDragLeave(event)"
+              ondrop="handleDrop(event)"
+              onclick="document.getElementById('audioFileInput').click()"
+            >
+              <div class="dropzone-icon">🎵</div>
+              <div class="dropzone-text">
+                <strong>Kéo thả file vào đây</strong> hoặc click để chọn
+              </div>
+              <div class="dropzone-hint">
+                Hỗ trợ: MP3, WAV, FLAC, OGG, M4A (tối đa 50MB)
+              </div>
+              <input
+                type="file"
+                id="audioFileInput"
+                accept="audio/*"
+                style="display:none"
+                onchange="handleFileSelect(event)"
+              />
+            </div>
+          </div>
+
+          <!-- Tab: YouTube -->
+          <div class="tab-content" id="tab-youtube">
+            <div class="url-input-wrap">
+              <input
+                type="url"
+                id="youtubeUrl"
+                class="text-input"
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+              <button class="btn-primary" onclick="fetchYouTube()">
+                Tải xuống
+              </button>
+            </div>
+            <p class="hint-text">
+              ℹ️ Chúng tôi sẽ tải audio từ video YouTube và xử lý tự động.
+            </p>
+          </div>
+
+          <!-- Tab: Record -->
+          <div class="tab-content" id="tab-record">
+            <div class="record-area">
+              <button class="btn-record" id="recordBtn" onclick="toggleRecord()">
+                <span class="record-icon">⏺</span>
+                <span id="recordLabel">Bắt đầu ghi âm</span>
+              </button>
+              <div class="record-timer" id="recordTimer">00:00</div>
+              <div
+                class="live-visualizer"
+                id="liveVisualizer"
+                style="display:none"
+              >
+                <canvas id="liveCanvas" width="400" height="80"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Uploaded file preview -->
+          <div class="file-preview" id="filePreview" style="display:none">
+            <div class="file-info">
+              <span class="file-icon">🎵</span>
+              <div class="file-meta">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-size" id="fileSize"></div>
+              </div>
+              <button class="btn-icon" onclick="clearFile()" title="Xóa file">✕</button>
+            </div>
+            <audio id="audioPreview" controls class="audio-player"></audio>
+          </div>
+
+          <div class="panel-actions">
+            <button
+              class="btn-primary btn-next"
+              id="btn-step1-next"
+              onclick="goToStep(2)"
+              disabled
+            >
+              Tiếp theo →
+            </button>
+          </div>
+        </div>
+
+        <!-- Panel 2: Voice selection -->
+        <div class="studio-panel" id="panel-2">
+          <h3>Bước 2 – Chọn giọng AI</h3>
+
+          <div class="voice-search">
+            <input
+              type="text"
+              class="text-input"
+              placeholder="🔍 Tìm kiếm giọng…"
+              oninput="filterVoices(this.value)"
+            />
+          </div>
+
+          <div class="voice-categories">
+            <button class="cat-btn active" data-cat="all" onclick="filterCat('all', this)">Tất cả</button>
+            <button class="cat-btn" data-cat="vn" onclick="filterCat('vn', this)">🇻🇳 Việt Nam</button>
+            <button class="cat-btn" data-cat="kpop" onclick="filterCat('kpop', this)">🇰🇷 K-Pop</button>
+            <button class="cat-btn" data-cat="us" onclick="filterCat('us', this)">🇺🇸 US/UK</button>
+            <button class="cat-btn" data-cat="anime" onclick="filterCat('anime', this)">🎌 Anime</button>
+          </div>
+
+          <div class="voice-grid" id="voiceGrid">
+            <!-- Filled by JS -->
+          </div>
+
+          <!-- Advanced settings -->
+          <details class="advanced-settings">
+            <summary>⚙️ Cài đặt nâng cao</summary>
+            <div class="settings-grid">
+              <div class="setting-item">
+                <label>Pitch (nửa cung)</label>
+                <div class="range-wrap">
+                  <input type="range" id="pitchSlider" min="-12" max="12" value="0"
+                    oninput="document.getElementById('pitchVal').textContent=this.value" />
+                  <span id="pitchVal">0</span>
+                </div>
+              </div>
+              <div class="setting-item">
+                <label>Index Ratio</label>
+                <div class="range-wrap">
+                  <input type="range" id="indexRatio" min="0" max="1" step="0.1" value="0.75"
+                    oninput="document.getElementById('indexVal').textContent=this.value" />
+                  <span id="indexVal">0.75</span>
+                </div>
+              </div>
+              <div class="setting-item">
+                <label>Protect Breath</label>
+                <div class="range-wrap">
+                  <input type="range" id="protectSlider" min="0" max="0.5" step="0.01" value="0.33"
+                    oninput="document.getElementById('protectVal').textContent=this.value" />
+                  <span id="protectVal">0.33</span>
+                </div>
+              </div>
+              <div class="setting-item">
+                <label>Tách nhạc nền</label>
+                <label class="toggle">
+                  <input type="checkbox" id="separateVocal" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="setting-item">
+                <label>Reverb</label>
+                <label class="toggle">
+                  <input type="checkbox" id="addReverb" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="setting-item">
+                <label>Định dạng xuất</label>
+                <select id="outputFormat" class="select-input">
+                  <option value="mp3">MP3 320kbps</option>
+                  <option value="wav">WAV 48kHz</option>
+                  <option value="flac">FLAC lossless</option>
+                </select>
+              </div>
+            </div>
+          </details>
+
+          <div class="panel-actions">
+            <button class="btn-ghost" onclick="goToStep(1)">← Quay lại</button>
+            <button
+              class="btn-primary btn-next"
+              id="btn-step2-next"
+              onclick="goToStep(3)"
+              disabled
+            >
+              Tiếp theo →
+            </button>
+          </div>
+        </div>
+
+        <!-- Panel 3: Generate -->
+        <div class="studio-panel" id="panel-3">
+          <h3>Bước 3 – Tạo bản cover</h3>
+
+          <div class="summary-card" id="summaryCard">
+            <div class="summary-row">
+              <span>📁 File nguồn:</span>
+              <strong id="summaryFile">–</strong>
+            </div>
+            <div class="summary-row">
+              <span>🎤 Giọng AI:</span>
+              <strong id="summaryVoice">–</strong>
+            </div>
+            <div class="summary-row">
+              <span>🎚️ Pitch:</span>
+              <strong id="summaryPitch">0</strong>
+            </div>
+            <div class="summary-row">
+              <span>📦 Định dạng:</span>
+              <strong id="summaryFormat">MP3</strong>
+            </div>
+          </div>
+
+          <!-- Progress area (hidden until generating) -->
+          <div class="generate-area" id="generateArea">
+            <button class="btn-primary btn-generate" id="generateBtn" onclick="startGeneration()">
+              🚀 Tạo Cover ngay!
+            </button>
+          </div>
+
+          <div class="progress-area" id="progressArea" style="display:none">
+            <div class="progress-stages" id="progressStages">
+              <div class="prog-stage" id="stage-upload">
+                <span class="stage-icon">📤</span>
+                <span class="stage-label">Đang upload…</span>
+                <span class="stage-status"></span>
+              </div>
+              <div class="prog-stage" id="stage-separate">
+                <span class="stage-icon">🎼</span>
+                <span class="stage-label">Tách vocal &amp; nhạc nền…</span>
+                <span class="stage-status"></span>
+              </div>
+              <div class="prog-stage" id="stage-convert">
+                <span class="stage-icon">🤖</span>
+                <span class="stage-label">AI chuyển đổi giọng…</span>
+                <span class="stage-status"></span>
+              </div>
+              <div class="prog-stage" id="stage-merge">
+                <span class="stage-icon">🔀</span>
+                <span class="stage-label">Ghép nhạc nền…</span>
+                <span class="stage-status"></span>
+              </div>
+              <div class="prog-stage" id="stage-export">
+                <span class="stage-icon">📥</span>
+                <span class="stage-label">Xuất file…</span>
+                <span class="stage-status"></span>
+              </div>
+            </div>
+            <div class="main-progress-wrap">
+              <div class="main-progress-bar" id="mainProgressBar"></div>
+            </div>
+            <div class="progress-msg" id="progressMsg">Đang khởi động…</div>
+          </div>
+
+          <!-- Result area (hidden until done) -->
+          <div class="result-area" id="resultArea" style="display:none">
+            <div class="result-header">
+              <span class="result-badge">✅ Hoàn thành!</span>
+            </div>
+            <div class="result-player">
+              <audio id="resultAudio" controls class="audio-player"></audio>
+            </div>
+            <div class="result-compare">
+              <div class="compare-item">
+                <label>🎵 Bản gốc</label>
+                <audio id="compareOriginal" controls class="audio-player-sm"></audio>
+              </div>
+              <div class="compare-item">
+                <label>🎤 AI Cover</label>
+                <audio id="compareResult" controls class="audio-player-sm"></audio>
+              </div>
+            </div>
+            <div class="result-actions">
+              <button class="btn-primary" onclick="downloadResult()">
+                📥 Tải xuống
+              </button>
+              <button class="btn-ghost" onclick="shareResult()">
+                📤 Chia sẻ
+              </button>
+              <button class="btn-ghost" onclick="resetStudio()">
+                🔄 Tạo cover mới
+              </button>
+            </div>
+          </div>
+
+          <div class="panel-actions" id="step3-back">
+            <button class="btn-ghost" onclick="goToStep(2)">← Quay lại</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2>Cách hoạt động</h2>
+        <p>Công nghệ AI đằng sau từng bản cover</p>
+      </div>
+      <div class="pipeline">
+        <div class="pipe-step">
+          <div class="pipe-icon">📤</div>
+          <div class="pipe-content">
+            <h4>1. Upload</h4>
+            <p>Bạn upload file nhạc hoặc giọng hát (MP3, WAV…)</p>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-icon">🎼</div>
+          <div class="pipe-content">
+            <h4>2. Tách vocal</h4>
+            <p>
+              <strong>Demucs</strong> (Meta AI) tách vocal khỏi nhạc nền với
+              độ chính xác cao.
+            </p>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-icon">🤖</div>
+          <div class="pipe-content">
+            <h4>3. Chuyển giọng</h4>
+            <p>
+              <strong>RVC v2</strong> chuyển đổi vocal sang giọng ca sĩ được
+              chọn.
+            </p>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-icon">🔀</div>
+          <div class="pipe-content">
+            <h4>4. Ghép lại</h4>
+            <p>
+              Vocal sau chuyển đổi được ghép với nhạc nền gốc một cách hoàn
+              hảo.
+            </p>
+          </div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-icon">📥</div>
+          <div class="pipe-content">
+            <h4>5. Tải xuống</h4>
+            <p>
+              Nhận file cover chất lượng cao, sẵn sàng đăng YouTube / TikTok.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section class="faq" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <h2>Câu hỏi thường gặp</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Trang web có miễn phí không?
+            <span class="faq-arrow">▼</span>
+          </button>
+          <div class="faq-a">
+            Có! Bạn có thể tạo tối đa 5 cover mỗi ngày miễn phí. Gói Pro cung
+            cấp không giới hạn và chất lượng cao hơn.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Mất bao lâu để tạo một bản cover?
+            <span class="faq-arrow">▼</span>
+          </button>
+          <div class="faq-a">
+            Thường từ 30 đến 90 giây tùy độ dài bài hát và tải của server. Bài
+            hát 3 phút thường mất khoảng 45 giây.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            File của tôi có bị lưu lại không?
+            <span class="faq-arrow">▼</span>
+          </button>
+          <div class="faq-a">
+            Không. Mọi file được xóa tự động sau 1 giờ kể từ khi xử lý xong.
+            Chúng tôi không giữ bất kỳ dữ liệu âm thanh nào của bạn.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Có thể dùng trên điện thoại không?
+            <span class="faq-arrow">▼</span>
+          </button>
+          <div class="faq-a">
+            Có! Giao diện được tối ưu cho cả desktop và mobile. Bạn có thể ghi
+            âm và tạo cover trực tiếp từ điện thoại.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Bản cover có được dùng thương mại không?
+            <span class="faq-arrow">▼</span>
+          </button>
+          <div class="faq-a">
+            Cover AI chỉ dùng cho mục đích cá nhân / phi thương mại. Việc sử
+            dụng thương mại cần tuân thủ luật bản quyền hiện hành.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">🎵 AI Cover Music</div>
+          <p>Tạo bản cover AI chất lượng cao, nhanh chóng và dễ dàng.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Liên kết</h4>
+          <ul>
+            <li><a href="#features">Tính năng</a></li>
+            <li><a href="#studio">Studio</a></li>
+            <li><a href="#how-it-works">Cách dùng</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Hỗ trợ</h4>
+          <ul>
+            <li><a href="#">Tài liệu API</a></li>
+            <li><a href="#">Báo lỗi</a></li>
+            <li><a href="#">Điều khoản dịch vụ</a></li>
+            <li><a href="#">Chính sách bảo mật</a></li>
+          </ul>
+        </div>
+        <div class="footer-social">
+          <h4>Theo dõi</h4>
+          <div class="social-links">
+            <a href="#" class="social-btn">GitHub</a>
+            <a href="#" class="social-btn">YouTube</a>
+            <a href="#" class="social-btn">TikTok</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2024 AI Cover Music – Ngô Quân Hào. Made with ❤️ in Vietnam.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
