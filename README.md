@@ -1,87 +1,172 @@
 # 🎵 AI Cover Music – Ngô Quân Hào
 
-Trang web tạo **AI Cover nhạc & giọng hát** chất lượng cao, nhanh chóng và miễn phí.
+Repo đã được nâng cấp để chạy 2 chế độ trên Google Colab:
+
+1) **Train** model giọng từ dataset của bạn (`.pth` + `.index`)  
+2) **Cover/Inference** từ file nhạc hoặc YouTube URL
+
+> ⚠️ Chỉ dùng giọng nói/giọng hát bạn có quyền sử dụng. Tôn trọng bản quyền bài hát và quyền nhân thân giọng nói.
 
 ---
 
-## Tính năng
+## 1) Cài nhanh trên Colab (ưu tiên ít lệnh)
 
-- 🎙️ **AI Voice Conversion** – Chuyển đổi giọng hát sang bất kỳ ca sĩ bằng RVC v2
-- 🎼 **Tách nhạc nền** – Tách vocal khỏi nhạc nền tự động với Demucs
-- 📁 **Upload đa dạng** – Hỗ trợ MP3, WAV, FLAC, OGG, M4A (tối đa 50MB)
-- 🔗 **YouTube** – Tải audio trực tiếp từ URL YouTube
-- 🎙️ **Ghi âm trực tiếp** – Ghi âm ngay trên trình duyệt
-- ⚙️ **Tùy chỉnh cao** – Pitch, Index Ratio, Protect Breath, Reverb, định dạng xuất
-- 📥 **Xuất chất lượng cao** – MP3 320kbps / WAV 48kHz / FLAC lossless
-- 🌙 **Dark mode UI** – Giao diện đẹp, responsive cho mobile
+### Cell 1: clone + mount Drive + setup
 
----
-
-## Cài đặt & Chạy
-
-### Yêu cầu
-- Python 3.10+
-- `ffmpeg` (cần cho YouTube download)
-
-### Cách chạy
+```python
+from google.colab import drive
+drive.mount('/content/drive')
+```
 
 ```bash
-# Clone repo
-git clone https://github.com/ngoquanhao2009/COVERMUSICNGOQUANHAO.git
-cd COVERMUSICNGOQUANHAO
-
-# Cài dependencies Python
-pip install -r requirements.txt
-
-# Chạy backend
-cd server
-python app.py
-
-# Mở trình duyệt
-# http://localhost:5000
+!git clone https://github.com/ngoquanhao2009/COVERMUSICNGOQUANHAO.git
+%cd COVERMUSICNGOQUANHAO
+!bash scripts/colab_setup.sh
 ```
-
-> **Dùng không cần backend:** Mở `index.html` trực tiếp trên trình duyệt để trải nghiệm UI đầy đủ (tính năng AI cần backend).
 
 ---
 
-## Cấu trúc dự án
+## 2) Chuẩn bị dataset train giọng
 
+- Khuyến nghị: **15–60 phút** audio sạch (ít ồn, ít reverb, ít nhạc nền)
+- Tối thiểu có thể train từ 10 phút, nhưng chất lượng thường kém ổn định hơn
+- Định dạng: wav/mp3/flac/ogg/m4a/aac
+- Nếu mục tiêu cover hát, nên có một phần audio hát thật của chính bạn
+
+### Gợi ý cấu trúc Google Drive
+
+```text
+MyDrive/COVERMUSIC/
+├── data/
+│   └── myvoice_dataset/        # dữ liệu train
+├── work/                       # runtime train/infer
+├── models/                     # chứa .pth/.index sau train
+├── songs/
+│   └── song.mp3
+└── output/
 ```
+
+---
+
+## 3) Lệnh Train (CLI)
+
+```bash
+python -m covermusic.train \
+  --data /content/drive/MyDrive/COVERMUSIC/data/myvoice_dataset \
+  --name myvoice_v1 \
+  --workdir /content/drive/MyDrive/COVERMUSIC/work \
+  --epochs 200 \
+  --sample-rate 40k \
+  --f0-method rmvpe
+```
+
+Sau khi train xong, model thường nằm trong thư mục:
+
+```text
+/content/drive/MyDrive/COVERMUSIC/work/logs/myvoice_v1/
+```
+
+Hãy copy `.pth` + `.index` vào `MyDrive/COVERMUSIC/models/`.
+
+---
+
+## 4) Lệnh Cover/Inference (CLI)
+
+### 4.1 Cover từ file nhạc
+
+```bash
+python -m covermusic.cover \
+  --song /content/drive/MyDrive/COVERMUSIC/songs/song.mp3 \
+  --model /content/drive/MyDrive/COVERMUSIC/models/myvoice_v1.pth \
+  --index /content/drive/MyDrive/COVERMUSIC/models/myvoice_v1.index \
+  --out /content/drive/MyDrive/COVERMUSIC/output/cover.mp3 \
+  --workdir /content/drive/MyDrive/COVERMUSIC/work \
+  --pitch 0 \
+  --index-rate 0.75 \
+  --protect 0.33
+```
+
+### 4.2 Cover từ YouTube URL
+
+```bash
+python -m covermusic.cover \
+  --song "https://www.youtube.com/watch?v=VIDEO_ID" \
+  --model /content/drive/MyDrive/COVERMUSIC/models/myvoice_v1.pth \
+  --index /content/drive/MyDrive/COVERMUSIC/models/myvoice_v1.index \
+  --out /content/drive/MyDrive/COVERMUSIC/output/cover_from_youtube.mp3 \
+  --workdir /content/drive/MyDrive/COVERMUSIC/work
+```
+
+---
+
+## 5) Chạy web backend Flask trên Colab
+
+```bash
+%cd /content/COVERMUSICNGOQUANHAO/server
+!python app.py
+```
+
+### Expose public URL (tuỳ chọn)
+
+#### Cloudflared
+
+```bash
+!wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+!dpkg -i cloudflared-linux-amd64.deb
+!cloudflared tunnel --url http://localhost:5000
+```
+
+#### Ngrok
+
+```bash
+!pip install -q pyngrok
+!ngrok config add-authtoken YOUR_NGROK_TOKEN
+!ngrok http 5000
+```
+
+---
+
+## 6) API backend thật cho `/api/convert`
+
+`server/app.py` hiện hỗ trợ 2 mode:
+
+- **Demo mode** (mặc định): mô phỏng
+- **Real mode**: khi gửi thêm `model_name` (và tùy chọn `index_name`)
+
+Model sẽ được đọc trong thư mục `COVERMUSIC_MODEL_DIR` (mặc định `/tmp/covermusic_models`) để tránh path traversal.
+
+Ví dụ payload:
+
+```json
+{
+  "file_id": "uuid",
+  "ext": "mp3",
+  "voice_id": "custom",
+  "model_name": "myvoice_v1",
+  "index_name": "myvoice_v1",
+  "pitch": 0,
+  "index_ratio": 0.75,
+  "protect": 0.33,
+  "output_format": "mp3"
+}
+```
+
+---
+
+## 7) Cấu trúc dự án chính
+
+```text
 COVERMUSICNGOQUANHAO/
-├── index.html              # Trang web chính
-├── assets/
-│   ├── css/style.css       # Giao diện
-│   └── js/app.js           # Logic frontend
+├── covermusic/
+│   ├── train.py              # python -m covermusic.train
+│   ├── cover.py              # python -m covermusic.cover
+│   └── rvc_runtime.py        # wrapper clone/call RVC runtime
+├── scripts/
+│   └── colab_setup.sh
 ├── server/
-│   └── app.py              # Flask backend API
-├── requirements.txt        # Python dependencies
-└── README.md
+│   └── app.py
+└── requirements.txt
 ```
-
----
-
-## API Endpoints
-
-| Method | Path                 | Mô tả                       |
-|--------|----------------------|-----------------------------|
-| GET    | `/api/health`        | Kiểm tra server             |
-| GET    | `/api/voices`        | Danh sách giọng AI          |
-| POST   | `/api/upload`        | Upload file âm thanh        |
-| POST   | `/api/convert`       | Bắt đầu chuyển đổi giọng    |
-| GET    | `/api/jobs/<id>`     | Kiểm tra trạng thái job     |
-| GET    | `/api/download/<id>` | Tải file kết quả            |
-| POST   | `/api/fetch-youtube` | Tải audio từ YouTube URL    |
-
----
-
-## Tích hợp AI thực tế
-
-Để tích hợp AI thật, bạn cần:
-
-1. **Replicate API** – Đăng ký tại [replicate.com](https://replicate.com) và lấy API key
-2. **RVC Model** – Dùng model RVC v2 trên Replicate hoặc tự host
-3. **Demucs** – `pip install demucs` để tách vocal/nhạc nền
 
 ---
 

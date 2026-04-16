@@ -1,6 +1,6 @@
 """
 AI Cover Music – Flask Backend
-Handles audio uploads, YouTube download, and AI voice conversion via Replicate API.
+Handles audio uploads, YouTube download, and AI voice conversion (demo + real pipeline option).
 """
 
 import os
@@ -9,6 +9,7 @@ import uuid
 import shutil
 import threading
 import time
+import subprocess
 from pathlib import Path
 from urllib.parse import urlparse
 from flask import Flask, request, jsonify, send_file
@@ -24,6 +25,10 @@ UPLOAD_FOLDER = Path("/tmp/ai_cover_uploads")
 RESULT_FOLDER = Path("/tmp/ai_cover_results")
 UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
 RESULT_FOLDER.mkdir(parents=True, exist_ok=True)
+MODEL_FOLDER = Path(os.environ.get("COVERMUSIC_MODEL_DIR", "/tmp/covermusic_models")).resolve()
+MODEL_FOLDER.mkdir(parents=True, exist_ok=True)
+PIPELINE_WORKDIR = Path(os.environ.get("COVERMUSIC_PIPELINE_WORKDIR", "/tmp/covermusic_pipeline")).resolve()
+PIPELINE_WORKDIR.mkdir(parents=True, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"mp3", "wav", "flac", "ogg", "m4a", "aac"}
 MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50 MB
@@ -79,6 +84,43 @@ def cleanup_file(path: str, delay: int = 3600):
         except FileNotFoundError:
             pass
     threading.Thread(target=_delete, daemon=True).start()
+
+
+def resolve_model_path(model_name: str, expected_ext: str) -> Path:
+    """
+    Resolve a model/index path using only a sanitized filename inside MODEL_FOLDER.
+    Prevents path traversal and avoids exposing server internal layout.
+    """
+    cleaned = secure_filename(model_name or "").strip()
+    if not cleaned:
+        raise ValueError("Invalid model name")
+
+    p = Path(cleaned)
+    if p.suffix:
+        stem = p.stem
+    else:
+        stem = cleaned
+    filename = f"{stem}.{expected_ext}"
+    resolved = (MODEL_FOLDER / filename).resolve()
+    if not resolved.is_relative_to(MODEL_FOLDER):
+        raise ValueError("Invalid model path")
+    return resolved
+
+
+def parse_int(value, default: int, minimum: int = -24, maximum: int = 24) -> int:
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return default
+    return max(min(parsed, maximum), minimum)
+
+
+def parse_float(value, default: float, minimum: float = 0.0, maximum: float = 1.0) -> float:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return default
+    return max(min(parsed, maximum), minimum)
 
 
 # ---------- Routes ----------
@@ -174,6 +216,8 @@ def convert_voice():
     This demo version returns a simulated job that resolves after a delay.
     """
     data = request.get_json(force=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "Invalid JSON body"}), 400
     for field in ("file_id", "ext", "voice_id"):
         if field not in data:
             return jsonify({"error": f"Missing field: {field}"}), 400
@@ -198,12 +242,43 @@ def convert_voice():
     job_id = str(uuid.uuid4())
     jobs[job_id] = {"status": "queued", "progress": 0, "message": "Dang xep hang..."}
 
-    # Start async simulation (replace with real AI pipeline)
-    threading.Thread(
-        target=_run_conversion,
-        args=(job_id, record["path"], data.get("voice_id", ""), output_ext),
-        daemon=True,
-    ).start()
+    model_name = str(data.get("model_name", "")).strip()
+    index_name = str(data.get("index_name", "")).strip()
+    use_real_pipeline = bool(model_name)
+
+    if use_real_pipeline:
+        try:
+            model_path = resolve_model_path(model_name, "pth")
+            index_path = resolve_model_path(index_name, "index") if index_name else None
+        except ValueError:
+            return jsonify({"error": "Invalid model_name/index_name"}), 400
+
+        if not model_path.exists():
+            return jsonify({"error": "Model not found on server"}), 404
+        if index_path and not index_path.exists():
+            return jsonify({"error": "Index not found on server"}), 404
+
+        threading.Thread(
+            target=_run_real_conversion,
+            args=(
+                job_id,
+                record["path"],
+                str(model_path),
+                str(index_path) if index_path else "",
+                output_ext,
+                parse_int(data.get("pitch", 0), default=0),
+                parse_float(data.get("index_ratio", 0.75), default=0.75),
+                parse_float(data.get("protect", 0.33), default=0.33),
+            ),
+            daemon=True,
+        ).start()
+    else:
+        # Start async simulation (fallback demo mode)
+        threading.Thread(
+            target=_run_conversion,
+            args=(job_id, record["path"], data.get("voice_id", ""), output_ext),
+            daemon=True,
+        ).start()
 
     return jsonify({"job_id": job_id})
 
@@ -233,6 +308,74 @@ def _run_conversion(job_id: str, src_path: str, voice_id: str, output_ext: str):
         "result_id":   job_id,
         "ext":         output_ext,
         # Store the real path server-side; download route uses this directly
+        "result_path": str(result_path),
+    }
+
+
+def _run_real_conversion(
+    job_id: str,
+    src_path: str,
+    model_path: str,
+    index_path: str,
+    output_ext: str,
+    pitch: int,
+    index_ratio: float,
+    protect: float,
+):
+    """
+    Run real conversion via CLI module: python -m covermusic.cover ...
+    If it fails, job is marked as error without exposing internal server paths.
+    """
+    jobs[job_id] = {"status": "processing", "progress": 0.1, "message": "Khoi dong pipeline that..."}
+
+    result_path = make_result_path(job_id, output_ext)
+    cmd = [
+        os.environ.get("PYTHON", "python"),
+        "-m",
+        "covermusic.cover",
+        "--song",
+        src_path,
+        "--model",
+        model_path,
+        "--out",
+        str(result_path),
+        "--workdir",
+        str(PIPELINE_WORKDIR / job_id),
+        "--pitch",
+        str(pitch),
+        "--index-rate",
+        str(index_ratio),
+        "--protect",
+        str(protect),
+    ]
+    if index_path:
+        cmd.extend(["--index", index_path])
+
+    try:
+        subprocess.run(cmd, check=True)
+    except Exception:
+        jobs[job_id] = {
+            "status": "error",
+            "progress": 0,
+            "message": "Pipeline loi. Kiem tra model, ffmpeg, demucs va RVC runtime.",
+        }
+        return
+
+    if not result_path.exists():
+        jobs[job_id] = {
+            "status": "error",
+            "progress": 0,
+            "message": "Khong tim thay file ket qua sau khi convert.",
+        }
+        return
+
+    cleanup_file(str(result_path))
+    jobs[job_id] = {
+        "status": "done",
+        "progress": 1.0,
+        "message": "Hoan thanh!",
+        "result_id": job_id,
+        "ext": output_ext,
         "result_path": str(result_path),
     }
 

@@ -1,0 +1,2 @@
+"""CoverMusic CLI package."""
+
